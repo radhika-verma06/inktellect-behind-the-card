@@ -1,0 +1,667 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>InkTellect Behind the Card</title>
+</head>
+<body>
+<script>document.documentElement.classList.add("js");</script>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,400&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --paper: #f7f6f1;
+    --ink: #0d0d0e;
+    --blue: #1f35c7;
+    --red: #e23d28;
+    --muted: #6b6a64;
+    --line: rgba(13, 13, 14, 0.16);
+    --card: #ffffff;
+    --display: "Bodoni Moda", "Bodoni 72", Didot, Georgia, serif;
+    --body: "Manrope", "Helvetica Neue", Arial, sans-serif;
+    --mono: "JetBrains Mono", "SF Mono", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #0d0d0e;
+      --ink: #f7f6f1;
+      --blue: #93a4ff;
+      --red: #ff6b54;
+      --muted: #a6a49c;
+      --line: rgba(247, 246, 241, 0.18);
+      --card: #151516;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #0d0d0e;
+    --ink: #f7f6f1;
+    --blue: #93a4ff;
+    --red: #ff6b54;
+    --muted: #a6a49c;
+    --line: rgba(247, 246, 241, 0.18);
+    --card: #151516;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 17px;
+    line-height: 1.6;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  ::selection { background: var(--blue); color: var(--paper); }
+  .site { max-width: 1180px; margin: 0 auto; padding: 24px 0 72px; }
+  .topbar {
+    display: flex; justify-content: space-between; align-items: baseline;
+    gap: 16px; padding-bottom: 14px; border-bottom: 1px solid var(--line);
+  }
+  .wordmark { font-weight: 700; font-size: 20px; letter-spacing: -0.04em; }
+  .wordmark span { color: var(--blue); }
+  .topbar .meta {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.13em;
+    text-transform: uppercase; color: var(--muted); text-align: right;
+  }
+  .hero {
+    display: grid; grid-template-columns: 1.08fr 0.92fr; gap: 56px;
+    align-items: center; padding: 74px 0 64px;
+  }
+  .eyebrow {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--blue);
+  }
+  h1 {
+    margin: 18px 0 0; font-family: var(--display); font-weight: 400;
+    font-size: clamp(48px, 6.6vw, 86px); line-height: 0.92;
+    letter-spacing: -0.045em; text-wrap: balance;
+  }
+  h1 em { font-style: italic; }
+  .lead {
+    margin: 24px 0 0; max-width: 38ch; font-size: 18px; line-height: 1.55;
+    color: var(--muted);
+  }
+  .lead strong { color: var(--ink); font-weight: 600; }
+  .hero-meta {
+    display: flex; flex-wrap: wrap; gap: 10px 22px; margin-top: 30px;
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .hero-meta span { display: inline-flex; align-items: center; gap: 7px; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--red); flex: none; }
+  .jump {
+    display: inline-flex; align-items: center; gap: 10px; margin-top: 34px;
+    color: var(--ink); text-decoration: none; font-family: var(--mono);
+    font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase;
+    border-bottom: 1px solid var(--ink); padding-bottom: 4px;
+  }
+  .jump:hover { color: var(--blue); border-color: var(--blue); }
+
+  .hero-art { position: relative; min-height: 520px; }
+  .photo-chip {
+    position: absolute; right: 0; bottom: 0; width: 56%; height: 72%; z-index: 1;
+    border: 1px solid var(--ink); overflow: hidden; background: var(--card);
+  }
+  .photo-chip img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 43%; display: block; filter: contrast(1.04) saturate(0.9); }
+  .card-mock {
+    position: absolute; left: 0; top: 0; width: 66%; aspect-ratio: 105 / 148; z-index: 2;
+    background: var(--card); border: 1px solid var(--ink);
+    padding: 18px 16px 14px; transform: rotate(-3deg);
+    box-shadow: 0 24px 50px rgba(0,0,0,0.16);
+    display: flex; flex-direction: column;
+  }
+  .card-top, .card-bottom {
+    display: flex; justify-content: space-between; gap: 8px;
+    font-family: var(--mono); font-size: 8px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .card-top .no { color: var(--red); }
+  .card-bottom { margin-top: auto; align-items: flex-end; }
+  .card-bottom .mark { font-family: var(--body); font-size: 13px; font-weight: 700; letter-spacing: -0.04em; color: var(--ink); text-transform: none; }
+  .card-bottom .mark span { color: var(--blue); }
+  .bubble-wrap { position: relative; width: 100%; margin-top: 22%; }
+  .bubble-line { display: block; width: 100%; height: auto; }
+  .handwriting-svg {
+    position: absolute; left: 7%; top: 26%; width: 86%; height: auto; overflow: visible;
+  }
+  .ink {
+    fill: none; stroke: var(--ink); stroke-width: 5.6;
+    stroke-linecap: round; stroke-linejoin: round;
+  }
+  .ink.red { stroke: var(--red); }
+
+  .chapter { padding: 72px 0 0; border-top: 1px solid var(--line); }
+  .chapter-head { display: grid; grid-template-columns: 110px 1fr; gap: 24px; align-items: start; }
+  .chapter-num { font-family: var(--mono); font-size: 12px; letter-spacing: 0.12em; color: var(--blue); padding-top: 8px; white-space: nowrap; }
+  h2 {
+    margin: 0; font-family: var(--display); font-weight: 400;
+    font-size: clamp(34px, 4.2vw, 56px); line-height: 0.98;
+    letter-spacing: -0.04em; text-wrap: balance;
+  }
+  h2 em { font-style: italic; }
+  .chapter-body { margin: 32px 0 0 134px; max-width: 760px; }
+  .chapter-body p { margin: 0 0 14px; color: var(--muted); }
+  .chapter-body p strong { color: var(--ink); font-weight: 600; }
+  .kicker { font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+  .capture-stage {
+    margin: 34px 0 0 134px; background: var(--card); border: 1px solid var(--ink);
+    padding: 26px 28px 24px; position: relative;
+  }
+  .capture-stage .rule { border: 0; border-top: 1px solid var(--line); margin: 22px 0 16px; }
+  .capture-svg { width: 100%; height: auto; display: block; overflow: visible; }
+  .capture-controls { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; justify-content: space-between; }
+  .replay-btn {
+    appearance: none; border: 1px solid var(--ink); background: transparent;
+    color: var(--ink); font-family: var(--mono); font-size: 11px;
+    letter-spacing: 0.12em; text-transform: uppercase; padding: 11px 14px;
+    cursor: pointer; border-radius: 0;
+  }
+  .replay-btn:hover, .replay-btn:focus-visible { background: var(--ink); color: var(--paper); }
+  .capture-note { font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; color: var(--muted); }
+  .facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 26px; }
+  .fact { border-top: 1px solid var(--line); padding-top: 10px; }
+  .fact b { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--blue); }
+  .fact span { display: block; margin-top: 4px; font-size: 14px; line-height: 1.4; color: var(--muted); }
+  @media (max-width: 860px) {
+    .hero { grid-template-columns: 1fr; gap: 34px; padding-top: 48px; }
+    .hero-art { min-height: 430px; max-width: 520px; }
+    .chapter-head { grid-template-columns: 1fr; gap: 8px; }
+    .chapter-body, .capture-stage { margin-left: 0; }
+    .facts { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 480px) {
+    body { font-size: 16px; }
+    .site { padding-top: 16px; }
+    .hero-art { min-height: 360px; }
+    .card-mock { width: 72%; }
+    .photo-chip { width: 52%; height: 66%; }
+    .capture-stage { padding: 18px 16px; }
+  }
+</style>
+
+<style>
+  body { overflow-x: hidden; }
+  .progress {
+    position: fixed; top: 0; left: 0; height: 2px; width: 0;
+    background: var(--blue); z-index: 100; pointer-events: none;
+  }
+  .hero-art::before {
+    content: ""; position: absolute; inset: 6% 0 0 4%;
+    background: radial-gradient(circle at 58% 36%, rgba(31, 53, 199, 0.22), transparent 62%);
+    filter: blur(18px); z-index: 0; pointer-events: none;
+  }
+  .hero-art { isolation: isolate; }
+  .card-mock { animation: card-float 7s ease-in-out infinite; }
+  @keyframes card-float {
+    0%, 100% { transform: rotate(-3deg) translateY(0); }
+    50% { transform: rotate(-2.3deg) translateY(-7px); }
+  }
+  .chapter { position: relative; }
+  .chapter::before {
+    content: ""; position: absolute; left: 4%; top: -30px; width: 54%; height: 230px;
+    background: rgba(31, 53, 199, 0.13); border-radius: 50%;
+    filter: blur(78px); opacity: 0; transition: opacity 0.9s ease;
+    pointer-events: none; z-index: 0;
+  }
+  .chapter.in::before { opacity: 1; }
+  .chapter > * { position: relative; z-index: 1; }
+  html.js .reveal {
+    opacity: 0; transform: translateY(18px);
+    transition: opacity 0.75s cubic-bezier(0.2, 0.7, 0.2, 1),
+                transform 0.75s cubic-bezier(0.2, 0.7, 0.2, 1);
+    transition-delay: var(--d, 0ms);
+  }
+  html.js .reveal.in { opacity: 1; transform: none; }
+  .node {
+    transition: border-color 0.25s ease, color 0.25s ease,
+                background-color 0.25s ease, box-shadow 0.25s ease;
+  }
+  .node:hover, .node:focus-visible {
+    box-shadow: 0 0 0 1px var(--blue), 0 0 24px rgba(31, 53, 199, 0.18);
+  }
+  .replay-btn {
+    transition: background-color 0.25s ease, color 0.25s ease,
+                box-shadow 0.25s ease, border-color 0.25s ease;
+  }
+  .replay-btn:hover, .replay-btn:focus-visible {
+    box-shadow: 0 0 0 1px var(--blue), 0 0 26px rgba(31, 53, 199, 0.18);
+  }
+  .thanks { position: relative; }
+  .thanks::before {
+    content: ""; position: absolute; right: 6%; bottom: -10%; width: 360px; height: 260px;
+    background: radial-gradient(circle, rgba(31, 53, 199, 0.13), transparent 68%);
+    filter: blur(22px); pointer-events: none; z-index: 0;
+  }
+  .thanks > * { position: relative; z-index: 1; }
+  @media (prefers-reduced-motion: reduce) {
+    html.js .reveal { opacity: 1; transform: none; transition: none; }
+    .card-mock { animation: none; }
+    .chapter::before, .thanks::before { transition: none; }
+  }
+</style>
+<div class="progress" aria-hidden="true"></div>
+
+<main class="site" id="top">
+  <header class="topbar">
+    <div class="wordmark">Ink<span>tellect</span></div>
+    <div class="meta">Behind the card<br>a handwriting robot</div>
+  </header>
+
+  <section class="hero">
+    <div>
+      <div class="eyebrow">You scanned the card</div>
+      <h1>This card was written by a <em>robot</em>.</h1>
+      <p class="lead">You wrote one line. It read your strokes, then wrote them back. This is the whole machine behind the card  -  <strong>capture, model, arm, paper.</strong></p>
+      <div class="hero-meta">
+        <span><i class="dot"></i>Real pen</span>
+        <span><i class="dot"></i>Real paper</span>
+        <span><i class="dot"></i>Your strokes</span>
+      </div>
+      <a class="jump" href="#capture">Start with the line <span aria-hidden="true">&darr;</span></a>
+    </div>
+
+    <div class="hero-art" aria-hidden="true">
+      <div class="card-mock">
+        <div class="card-top"><span>A handwritten card</span><span class="no">No. 037</span></div>
+        <div class="bubble-wrap">
+          <svg class="bubble-line" viewBox="0 0 180 72">
+            <path d="M18 4 H162 Q176 4 176 18 V46 Q176 60 162 60 H42 L27 72 L27 60 H18 Q4 60 4 46 V18 Q4 4 18 4 Z" fill="none" stroke="var(--blue)" stroke-width="0.9" stroke-linejoin="round"/>
+            <path d="M160 10 l2.2 5.8 5.8 2.2 -5.8 2.2 -2.2 5.8 -2.2 -5.8 -5.8 -2.2 5.8 -2.2 z" fill="none" stroke="var(--red)" stroke-width="0.8" stroke-linejoin="round"/>
+          </svg>
+          <svg class="handwriting-svg" viewBox="0 0 1000 150" role="img" aria-label="hi my name is Radhika">
+                    <path class="ink" d="M 35.1 84.2 L 47.3 73.1 L 47.3 72.1 L 50.2 66.7 L 54.1 59.5 L 57.9 51.2 L 59.9 40.5 L 60.9 29.8 L 60.9 21.1 L 60.4 15.8 L 57.5 14.3 L 55.5 13.8 L 54.5 13.8 L 53.6 18.2 L 52.6 26.0 L 50.7 35.7 L 49.2 45.9 L 47.8 56.1 L 47.3 64.8 L 47.3 72.1 L 47.3 77.4 L 47.3 81.8 L 47.3 84.2 L 47.3 85.7 L 47.3 86.2 L 47.3 82.8 L 48.7 76.5 L 54.1 70.1 L 60.4 63.8 L 68.6 57.0 L 75.9 53.2 L 81.3 51.2 L 83.7 51.2 L 84.6 51.2 L 84.6 56.1 L 84.6 63.3 L 84.6 69.7 L 85.1 75.5 L 86.6 80.3 L 88.5 85.2 L 91.4 88.1 L 93.9 90.1 L 96.8 90.5 L 99.2 90.5 L 100.7 90.5 L 102.1 90.5 L 103.1 86.7 L 103.6 81.8 L 103.6 75.5 L 104.1 69.7 L 105.0 64.8 L 105.5 62.9 L 105.5 61.9 L 106.0 62.4 L 107.0 62.4 L 108.0 66.3 L 108.9 72.1 L 110.9 76.5 L 111.4 77.4"/>
+        <path class="ink" d="M 122.5 30.8 L 117.2 40.5 L 117.7 42.5 L 117.2 43.0 L 115.7 44.4 L 114.3 45.4 L 112.3 45.4 L 111.4 45.4 L 110.4 44.9 L 109.9 42.0 L 109.9 40.0 L 109.9 38.6 L 109.9 38.1"/>
+        <path class="ink" d="M 172.0 57.0 L 173.0 62.4 L 173.0 67.2 L 173.0 73.5 L 173.0 78.9 L 173.0 83.7 L 173.0 86.7 L 173.0 89.6 L 173.0 92.0 L 172.5 94.4 L 172.0 96.4 L 171.6 97.3 L 171.6 97.8 L 171.1 97.8 L 171.1 94.9 L 171.1 89.6 L 171.1 82.8 L 174.0 75.5 L 176.9 67.7 L 180.3 61.9 L 182.7 57.5 L 185.1 55.6 L 187.1 55.6 L 188.1 55.6 L 189.0 56.1 L 189.5 61.4 L 190.0 67.2 L 190.0 73.5 L 190.0 78.4 L 190.0 82.8 L 190.0 86.7 L 190.0 88.6 L 190.0 89.6 L 190.0 89.1 L 191.9 85.2 L 195.3 78.9 L 199.7 73.1 L 204.1 68.7 L 207.0 65.8 L 210.4 64.8 L 213.8 64.8 L 216.2 64.8 L 217.2 66.7 L 218.2 70.6 L 218.6 74.0 L 218.6 77.4 L 218.6 81.3 L 218.6 84.7 L 218.6 87.6 L 218.6 90.5 L 219.1 93.0 L 221.1 94.9 L 224.0 95.9 L 227.4 95.4 L 231.8 95.4 L 236.6 93.9 L 240.0 89.1 L 242.4 84.2 L 243.9 78.4 L 244.9 74.0 L 244.9 70.1 L 244.9 67.7 L 244.9 66.7 L 244.9 71.6 L 244.9 76.5 L 244.9 80.8 L 246.3 83.7 L 249.2 85.2 L 252.6 85.7 L 257.0 85.7 L 260.9 85.2 L 265.7 80.3 L 270.6 73.5 L 273.5 65.8 L 274.5 59.0 L 275.0 53.6 L 275.0 50.7 L 275.0 49.8 L 275.0 50.2 L 275.0 55.1 L 275.0 63.8 L 275.0 73.5 L 275.0 84.2 L 276.9 94.4 L 278.4 104.6 L 278.4 113.8 L 278.4 123.1 L 278.4 131.3 L 277.4 137.1 L 273.5 141.0 L 269.6 142.0 L 265.3 142.0 L 261.4 140.5 L 259.9 134.7 L 259.9 127.4 L 259.9 118.7 L 262.8 109.0 L 269.6 98.8 L 276.4 90.1 L 284.7 81.8 L 294.9 74.5 L 297.3 72.6"/>
+        <path class="ink" d="M 345.4 46.4 L 345.9 48.3 L 346.8 57.0 L 346.8 66.7 L 346.8 69.7 L 345.4 77.9 L 342.5 88.1 L 340.5 95.4 L 339.5 97.8 L 339.5 97.3 L 339.5 89.6 L 339.5 79.9 L 341.5 72.6 L 344.9 67.7 L 348.3 64.8 L 351.7 63.8 L 355.1 63.8 L 357.0 63.8 L 358.0 64.3 L 358.0 68.2 L 358.0 74.5 L 358.0 81.3 L 358.0 87.1 L 358.0 91.5 L 358.5 94.9 L 359.4 96.4 L 361.4 96.8 L 363.3 96.8 L 366.2 92.5 L 369.2 85.7 L 373.0 76.9 L 376.4 69.7 L 379.8 63.8 L 383.2 59.9 L 385.7 57.5 L 388.1 56.6 L 390.0 56.6 L 391.0 57.0 L 392.5 60.9 L 393.4 64.8 L 393.4 69.2 L 393.4 74.0 L 393.4 77.9 L 392.0 81.8 L 387.1 85.2 L 382.3 86.7 L 377.4 87.6 L 373.5 87.1 L 373.0 87.1 L 373.0 83.7 L 373.5 75.5 L 377.4 68.7 L 381.3 63.3 L 384.2 59.0 L 386.1 56.6 L 387.1 56.1 L 388.1 56.1 L 388.6 56.1 L 390.0 59.9 L 391.5 64.8 L 392.5 71.1 L 393.9 76.9 L 395.4 82.3 L 396.3 85.7 L 396.8 87.6 L 396.8 88.1 L 397.3 88.1 L 397.8 84.7 L 400.2 76.5 L 403.1 68.7 L 407.0 62.4 L 410.4 57.5 L 413.8 54.6 L 416.3 54.1 L 418.7 54.1 L 419.6 54.6 L 421.1 60.4 L 421.6 66.3 L 421.6 72.1 L 421.6 76.5 L 421.6 80.3 L 421.6 81.8 L 421.6 82.8 L 421.6 79.9 L 422.1 73.1 L 425.5 64.8 L 428.4 58.0 L 430.8 53.2 L 433.7 49.8 L 435.2 48.8 L 436.2 48.8 L 436.6 49.8 L 436.6 57.0 L 436.6 64.8 L 436.6 71.1 L 436.6 75.0 L 436.6 76.5 L 436.6 76.9 L 436.6 76.5 L 437.6 69.7 L 444.9 59.0 L 451.7 51.2 L 455.6 46.4 L 458.5 44.9 L 459.5 44.9 L 459.5 47.3 L 459.5 55.6 L 459.9 63.3 L 461.9 69.7 L 463.8 74.5 L 467.2 77.4 L 471.6 79.4 L 475.5 79.9 L 480.3 79.9 L 485.2 79.9 L 489.6 78.4 L 493.9 71.6 L 497.3 63.8 L 500.2 54.1 L 501.7 47.3 L 501.7 43.0 L 501.7 42.0 L 501.2 42.0 L 497.8 42.0 L 494.4 47.8 L 492.0 54.6 L 491.0 61.4 L 490.5 67.2 L 490.5 72.1 L 490.5 75.5 L 493.0 77.9 L 497.3 79.9 L 502.2 80.8 L 508.0 81.3 L 514.3 81.3 L 521.6 81.3 L 530.3 79.9 L 537.6 76.0 L 539.6 75.5"/>
+        <path class="ink" d="M 565.8 87.1 L 571.6 83.3 L 580.4 77.4 L 582.8 72.6 L 586.2 65.8 L 588.1 59.5 L 589.1 53.6 L 589.1 49.8 L 589.1 47.3 L 589.1 46.4 L 588.6 46.8 L 588.1 52.2 L 588.1 59.9 L 588.1 67.7 L 588.1 74.5 L 588.1 78.4 L 588.6 81.3 L 592.5 82.3 L 597.3 82.8 L 602.2 82.8 L 607.5 82.8 L 611.9 79.9 L 616.8 75.5 L 620.6 68.7 L 624.0 59.5 L 627.4 50.2 L 628.9 42.5 L 629.4 39.1 L 629.4 38.1 L 628.9 38.1 L 627.4 38.1 L 626.0 38.6 L 625.0 41.0 L 625.0 42.5 L 625.0 44.9 L 626.5 47.3 L 632.3 50.2 L 636.2 53.2 L 640.1 56.1 L 642.5 59.9 L 644.4 63.8 L 644.4 67.2 L 644.4 70.6 L 644.0 73.5 L 637.2 76.0 L 630.4 76.9 L 625.5 76.9 L 623.1 76.5 L 623.1 71.6 L 623.1 66.3 L 623.1 63.8 L 623.1 62.9 L 623.6 62.9 L 626.0 62.9 L 629.4 64.3 L 633.3 67.7 L 638.1 71.1 L 644.0 74.5 L 648.8 76.9 L 652.7 78.9"/>
+        <path class="ink" d="M 592.0 8.0 L 593.0 10.9 L 594.9 20.6 L 594.9 25.5 L 594.4 26.4 L 591.5 28.9 L 587.6 29.8 L 582.8 29.8 L 579.4 29.4 L 577.4 26.0 L 577.4 23.1 L 577.4 21.6"/>
+        <path class="ink" d="M 694.9 33.2 L 693.5 35.2 L 692.0 46.8 L 691.5 50.2 L 689.6 60.4 L 686.7 72.6 L 684.7 79.4 L 684.3 80.8 L 684.3 78.4 L 684.3 69.7 L 684.3 58.0 L 684.7 45.9 L 689.1 35.7 L 693.5 28.9 L 698.8 25.0 L 704.2 23.1 L 709.0 23.1 L 711.4 23.1 L 711.9 23.5 L 711.9 28.9 L 711.9 33.7 L 711.9 39.1 L 707.1 45.4 L 700.8 51.2 L 695.9 53.6 L 692.5 54.6 L 692.0 54.6 L 694.0 57.0 L 698.3 61.4 L 701.7 66.3 L 705.6 71.1 L 709.5 75.5 L 711.9 78.9 L 714.8 81.3 L 716.3 82.8 L 717.3 83.7"/>
+        <path class="ink" d="M 728.9 51.2 L 741.1 53.2 L 739.6 61.4 L 739.1 66.7 L 735.2 71.1 L 730.9 73.5 L 726.0 73.5 L 722.1 73.5 L 720.2 72.6 L 719.7 66.7 L 719.7 62.4 L 721.1 58.5 L 723.6 56.6 L 724.5 55.1 L 725.5 55.1 L 726.0 55.1 L 727.0 55.1 L 727.9 59.0 L 729.9 63.3 L 732.3 67.2 L 734.7 71.1 L 736.2 74.5 L 738.6 76.9 L 741.1 79.4 L 744.0 81.3 L 747.4 82.8 L 750.3 82.8"/>
+        <path class="ink" d="M 767.3 52.2 L 754.6 64.3 L 756.1 68.2 L 756.1 68.7 L 756.1 71.6 L 756.1 73.5 L 758.5 74.5 L 762.4 74.5 L 765.8 74.5 L 768.2 73.5 L 770.2 68.2 L 772.1 60.9 L 774.1 50.2 L 775.5 39.1 L 776.0 30.8 L 776.0 25.5 L 776.0 24.0 L 775.5 24.0 L 774.6 25.0 L 773.6 33.7 L 774.1 47.3 L 774.1 61.4 L 778.0 73.1 L 784.3 81.3 L 791.1 87.1 L 796.4 89.6 L 800.8 90.1 L 803.2 89.1 L 805.6 82.8 L 808.1 73.1 L 811.0 61.4 L 813.9 48.3 L 815.3 35.7 L 816.3 26.0 L 816.3 19.2 L 816.3 14.3 L 815.3 13.3 L 812.9 13.3 L 810.0 18.2 L 808.1 27.4 L 806.1 37.6 L 804.7 48.3 L 803.7 57.5 L 803.7 64.3 L 803.7 66.3 L 803.7 66.7 L 807.1 65.3 L 808.5 63.8"/>
+        <path class="ink" d="M 825.0 52.2 L 829.9 55.1 L 838.2 64.3 L 838.2 64.8 L 838.6 69.2 L 840.1 73.5 L 842.5 76.0 L 845.0 76.9 L 846.9 76.9 L 849.3 76.9 L 851.7 72.1 L 853.7 64.3 L 854.7 57.0 L 855.1 52.2 L 855.6 49.8 L 855.6 48.8 L 855.6 50.2 L 855.6 55.1 L 855.6 60.9 L 855.6 66.3 L 857.1 70.6 L 858.5 72.6"/>
+        <path class="ink" d="M 853.2 13.8 L 853.2 26.0 L 852.7 31.8 L 852.2 33.2 L 850.3 37.1 L 847.9 40.5 L 846.4 41.5 L 845.4 41.5 L 845.4 41.0 L 845.4 40.5"/>
+        <path class="ink" d="M 875.5 59.5 L 878.5 53.2 L 884.3 36.2 L 884.8 33.7 L 885.7 27.9 L 886.2 21.6 L 886.2 17.7 L 886.2 16.3 L 885.7 16.7 L 884.3 23.5 L 881.9 32.3 L 880.4 41.0 L 879.4 46.8 L 879.4 50.7 L 879.4 52.2 L 879.4 52.7 L 879.4 47.8 L 882.8 42.0 L 887.2 36.2 L 891.6 30.8 L 895.4 26.9 L 899.3 24.0 L 903.2 22.6 L 905.2 22.1 L 906.6 22.1 L 907.6 22.1 L 907.6 23.5 L 907.6 27.4 L 907.6 31.8 L 901.8 37.1 L 892.5 43.0 L 883.3 49.3 L 876.0 52.7 L 871.2 54.6 L 869.7 56.1 L 869.7 57.0 L 869.7 57.5 L 869.7 58.5 L 874.1 60.4 L 878.5 63.3 L 882.8 66.3 L 887.2 70.1 L 892.0 74.0 L 895.9 77.4 L 900.3 80.8 L 902.7 83.3 L 903.7 84.2 L 904.2 84.2 L 906.6 76.9 L 910.5 68.2 L 914.9 59.9 L 921.2 52.2 L 928.0 45.9 L 934.3 43.0 L 937.7 42.5 L 940.1 42.5 L 941.1 46.4 L 941.6 53.2 L 941.6 59.9 L 941.6 67.2 L 940.1 74.5 L 935.7 79.4 L 929.9 82.3 L 924.1 82.8 L 917.8 82.8 L 914.4 81.8 L 912.9 75.5 L 912.9 67.7 L 912.9 59.9 L 916.8 54.1 L 921.2 50.7 L 925.5 49.3 L 928.5 49.3 L 931.4 49.3 L 934.3 50.2 L 936.7 55.6 L 939.1 62.9 L 942.1 68.7 L 945.0 74.0 L 947.9 76.9 L 950.8 79.4 L 953.2 79.9 L 955.6 79.9 L 959.0 79.9 L 964.9 75.5"/>
+          </svg>
+        </div>
+        <div class="card-bottom">
+          <span class="mark">Ink<span>tellect</span></span>
+          <span>written by a robot<br>in the hand it captured</span>
+        </div>
+      </div>
+      <div class="photo-chip">
+        <img src="assets/robot_pen.jpg" alt="">
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter" id="capture">
+    <div class="chapter-head">
+      <div class="chapter-num">01 / Capture</div>
+      <h2>One line, recorded as <em>motion.</em></h2>
+    </div>
+    <div class="chapter-body">
+      <p>A phone canvas records ordered <strong>x, y and pen-up/down</strong>. Not a photo of handwriting  -  the actual path the pen took, in the order it took it.</p>
+      <p>The line becomes a list of small movements: draw, lift, move, draw. That is what a robot needs; a picture of the word is not enough.</p>
+    </div>
+    <div class="capture-stage">
+      <svg class="capture-svg" viewBox="0 0 1000 150" role="img" aria-label="Captured line: hi my name is Radhika">
+                <path class="ink" d="M 35.1 84.2 L 47.3 73.1 L 47.3 72.1 L 50.2 66.7 L 54.1 59.5 L 57.9 51.2 L 59.9 40.5 L 60.9 29.8 L 60.9 21.1 L 60.4 15.8 L 57.5 14.3 L 55.5 13.8 L 54.5 13.8 L 53.6 18.2 L 52.6 26.0 L 50.7 35.7 L 49.2 45.9 L 47.8 56.1 L 47.3 64.8 L 47.3 72.1 L 47.3 77.4 L 47.3 81.8 L 47.3 84.2 L 47.3 85.7 L 47.3 86.2 L 47.3 82.8 L 48.7 76.5 L 54.1 70.1 L 60.4 63.8 L 68.6 57.0 L 75.9 53.2 L 81.3 51.2 L 83.7 51.2 L 84.6 51.2 L 84.6 56.1 L 84.6 63.3 L 84.6 69.7 L 85.1 75.5 L 86.6 80.3 L 88.5 85.2 L 91.4 88.1 L 93.9 90.1 L 96.8 90.5 L 99.2 90.5 L 100.7 90.5 L 102.1 90.5 L 103.1 86.7 L 103.6 81.8 L 103.6 75.5 L 104.1 69.7 L 105.0 64.8 L 105.5 62.9 L 105.5 61.9 L 106.0 62.4 L 107.0 62.4 L 108.0 66.3 L 108.9 72.1 L 110.9 76.5 L 111.4 77.4"/>
+        <path class="ink" d="M 122.5 30.8 L 117.2 40.5 L 117.7 42.5 L 117.2 43.0 L 115.7 44.4 L 114.3 45.4 L 112.3 45.4 L 111.4 45.4 L 110.4 44.9 L 109.9 42.0 L 109.9 40.0 L 109.9 38.6 L 109.9 38.1"/>
+        <path class="ink" d="M 172.0 57.0 L 173.0 62.4 L 173.0 67.2 L 173.0 73.5 L 173.0 78.9 L 173.0 83.7 L 173.0 86.7 L 173.0 89.6 L 173.0 92.0 L 172.5 94.4 L 172.0 96.4 L 171.6 97.3 L 171.6 97.8 L 171.1 97.8 L 171.1 94.9 L 171.1 89.6 L 171.1 82.8 L 174.0 75.5 L 176.9 67.7 L 180.3 61.9 L 182.7 57.5 L 185.1 55.6 L 187.1 55.6 L 188.1 55.6 L 189.0 56.1 L 189.5 61.4 L 190.0 67.2 L 190.0 73.5 L 190.0 78.4 L 190.0 82.8 L 190.0 86.7 L 190.0 88.6 L 190.0 89.6 L 190.0 89.1 L 191.9 85.2 L 195.3 78.9 L 199.7 73.1 L 204.1 68.7 L 207.0 65.8 L 210.4 64.8 L 213.8 64.8 L 216.2 64.8 L 217.2 66.7 L 218.2 70.6 L 218.6 74.0 L 218.6 77.4 L 218.6 81.3 L 218.6 84.7 L 218.6 87.6 L 218.6 90.5 L 219.1 93.0 L 221.1 94.9 L 224.0 95.9 L 227.4 95.4 L 231.8 95.4 L 236.6 93.9 L 240.0 89.1 L 242.4 84.2 L 243.9 78.4 L 244.9 74.0 L 244.9 70.1 L 244.9 67.7 L 244.9 66.7 L 244.9 71.6 L 244.9 76.5 L 244.9 80.8 L 246.3 83.7 L 249.2 85.2 L 252.6 85.7 L 257.0 85.7 L 260.9 85.2 L 265.7 80.3 L 270.6 73.5 L 273.5 65.8 L 274.5 59.0 L 275.0 53.6 L 275.0 50.7 L 275.0 49.8 L 275.0 50.2 L 275.0 55.1 L 275.0 63.8 L 275.0 73.5 L 275.0 84.2 L 276.9 94.4 L 278.4 104.6 L 278.4 113.8 L 278.4 123.1 L 278.4 131.3 L 277.4 137.1 L 273.5 141.0 L 269.6 142.0 L 265.3 142.0 L 261.4 140.5 L 259.9 134.7 L 259.9 127.4 L 259.9 118.7 L 262.8 109.0 L 269.6 98.8 L 276.4 90.1 L 284.7 81.8 L 294.9 74.5 L 297.3 72.6"/>
+        <path class="ink" d="M 345.4 46.4 L 345.9 48.3 L 346.8 57.0 L 346.8 66.7 L 346.8 69.7 L 345.4 77.9 L 342.5 88.1 L 340.5 95.4 L 339.5 97.8 L 339.5 97.3 L 339.5 89.6 L 339.5 79.9 L 341.5 72.6 L 344.9 67.7 L 348.3 64.8 L 351.7 63.8 L 355.1 63.8 L 357.0 63.8 L 358.0 64.3 L 358.0 68.2 L 358.0 74.5 L 358.0 81.3 L 358.0 87.1 L 358.0 91.5 L 358.5 94.9 L 359.4 96.4 L 361.4 96.8 L 363.3 96.8 L 366.2 92.5 L 369.2 85.7 L 373.0 76.9 L 376.4 69.7 L 379.8 63.8 L 383.2 59.9 L 385.7 57.5 L 388.1 56.6 L 390.0 56.6 L 391.0 57.0 L 392.5 60.9 L 393.4 64.8 L 393.4 69.2 L 393.4 74.0 L 393.4 77.9 L 392.0 81.8 L 387.1 85.2 L 382.3 86.7 L 377.4 87.6 L 373.5 87.1 L 373.0 87.1 L 373.0 83.7 L 373.5 75.5 L 377.4 68.7 L 381.3 63.3 L 384.2 59.0 L 386.1 56.6 L 387.1 56.1 L 388.1 56.1 L 388.6 56.1 L 390.0 59.9 L 391.5 64.8 L 392.5 71.1 L 393.9 76.9 L 395.4 82.3 L 396.3 85.7 L 396.8 87.6 L 396.8 88.1 L 397.3 88.1 L 397.8 84.7 L 400.2 76.5 L 403.1 68.7 L 407.0 62.4 L 410.4 57.5 L 413.8 54.6 L 416.3 54.1 L 418.7 54.1 L 419.6 54.6 L 421.1 60.4 L 421.6 66.3 L 421.6 72.1 L 421.6 76.5 L 421.6 80.3 L 421.6 81.8 L 421.6 82.8 L 421.6 79.9 L 422.1 73.1 L 425.5 64.8 L 428.4 58.0 L 430.8 53.2 L 433.7 49.8 L 435.2 48.8 L 436.2 48.8 L 436.6 49.8 L 436.6 57.0 L 436.6 64.8 L 436.6 71.1 L 436.6 75.0 L 436.6 76.5 L 436.6 76.9 L 436.6 76.5 L 437.6 69.7 L 444.9 59.0 L 451.7 51.2 L 455.6 46.4 L 458.5 44.9 L 459.5 44.9 L 459.5 47.3 L 459.5 55.6 L 459.9 63.3 L 461.9 69.7 L 463.8 74.5 L 467.2 77.4 L 471.6 79.4 L 475.5 79.9 L 480.3 79.9 L 485.2 79.9 L 489.6 78.4 L 493.9 71.6 L 497.3 63.8 L 500.2 54.1 L 501.7 47.3 L 501.7 43.0 L 501.7 42.0 L 501.2 42.0 L 497.8 42.0 L 494.4 47.8 L 492.0 54.6 L 491.0 61.4 L 490.5 67.2 L 490.5 72.1 L 490.5 75.5 L 493.0 77.9 L 497.3 79.9 L 502.2 80.8 L 508.0 81.3 L 514.3 81.3 L 521.6 81.3 L 530.3 79.9 L 537.6 76.0 L 539.6 75.5"/>
+        <path class="ink" d="M 565.8 87.1 L 571.6 83.3 L 580.4 77.4 L 582.8 72.6 L 586.2 65.8 L 588.1 59.5 L 589.1 53.6 L 589.1 49.8 L 589.1 47.3 L 589.1 46.4 L 588.6 46.8 L 588.1 52.2 L 588.1 59.9 L 588.1 67.7 L 588.1 74.5 L 588.1 78.4 L 588.6 81.3 L 592.5 82.3 L 597.3 82.8 L 602.2 82.8 L 607.5 82.8 L 611.9 79.9 L 616.8 75.5 L 620.6 68.7 L 624.0 59.5 L 627.4 50.2 L 628.9 42.5 L 629.4 39.1 L 629.4 38.1 L 628.9 38.1 L 627.4 38.1 L 626.0 38.6 L 625.0 41.0 L 625.0 42.5 L 625.0 44.9 L 626.5 47.3 L 632.3 50.2 L 636.2 53.2 L 640.1 56.1 L 642.5 59.9 L 644.4 63.8 L 644.4 67.2 L 644.4 70.6 L 644.0 73.5 L 637.2 76.0 L 630.4 76.9 L 625.5 76.9 L 623.1 76.5 L 623.1 71.6 L 623.1 66.3 L 623.1 63.8 L 623.1 62.9 L 623.6 62.9 L 626.0 62.9 L 629.4 64.3 L 633.3 67.7 L 638.1 71.1 L 644.0 74.5 L 648.8 76.9 L 652.7 78.9"/>
+        <path class="ink" d="M 592.0 8.0 L 593.0 10.9 L 594.9 20.6 L 594.9 25.5 L 594.4 26.4 L 591.5 28.9 L 587.6 29.8 L 582.8 29.8 L 579.4 29.4 L 577.4 26.0 L 577.4 23.1 L 577.4 21.6"/>
+        <path class="ink" d="M 694.9 33.2 L 693.5 35.2 L 692.0 46.8 L 691.5 50.2 L 689.6 60.4 L 686.7 72.6 L 684.7 79.4 L 684.3 80.8 L 684.3 78.4 L 684.3 69.7 L 684.3 58.0 L 684.7 45.9 L 689.1 35.7 L 693.5 28.9 L 698.8 25.0 L 704.2 23.1 L 709.0 23.1 L 711.4 23.1 L 711.9 23.5 L 711.9 28.9 L 711.9 33.7 L 711.9 39.1 L 707.1 45.4 L 700.8 51.2 L 695.9 53.6 L 692.5 54.6 L 692.0 54.6 L 694.0 57.0 L 698.3 61.4 L 701.7 66.3 L 705.6 71.1 L 709.5 75.5 L 711.9 78.9 L 714.8 81.3 L 716.3 82.8 L 717.3 83.7"/>
+        <path class="ink" d="M 728.9 51.2 L 741.1 53.2 L 739.6 61.4 L 739.1 66.7 L 735.2 71.1 L 730.9 73.5 L 726.0 73.5 L 722.1 73.5 L 720.2 72.6 L 719.7 66.7 L 719.7 62.4 L 721.1 58.5 L 723.6 56.6 L 724.5 55.1 L 725.5 55.1 L 726.0 55.1 L 727.0 55.1 L 727.9 59.0 L 729.9 63.3 L 732.3 67.2 L 734.7 71.1 L 736.2 74.5 L 738.6 76.9 L 741.1 79.4 L 744.0 81.3 L 747.4 82.8 L 750.3 82.8"/>
+        <path class="ink" d="M 767.3 52.2 L 754.6 64.3 L 756.1 68.2 L 756.1 68.7 L 756.1 71.6 L 756.1 73.5 L 758.5 74.5 L 762.4 74.5 L 765.8 74.5 L 768.2 73.5 L 770.2 68.2 L 772.1 60.9 L 774.1 50.2 L 775.5 39.1 L 776.0 30.8 L 776.0 25.5 L 776.0 24.0 L 775.5 24.0 L 774.6 25.0 L 773.6 33.7 L 774.1 47.3 L 774.1 61.4 L 778.0 73.1 L 784.3 81.3 L 791.1 87.1 L 796.4 89.6 L 800.8 90.1 L 803.2 89.1 L 805.6 82.8 L 808.1 73.1 L 811.0 61.4 L 813.9 48.3 L 815.3 35.7 L 816.3 26.0 L 816.3 19.2 L 816.3 14.3 L 815.3 13.3 L 812.9 13.3 L 810.0 18.2 L 808.1 27.4 L 806.1 37.6 L 804.7 48.3 L 803.7 57.5 L 803.7 64.3 L 803.7 66.3 L 803.7 66.7 L 807.1 65.3 L 808.5 63.8"/>
+        <path class="ink" d="M 825.0 52.2 L 829.9 55.1 L 838.2 64.3 L 838.2 64.8 L 838.6 69.2 L 840.1 73.5 L 842.5 76.0 L 845.0 76.9 L 846.9 76.9 L 849.3 76.9 L 851.7 72.1 L 853.7 64.3 L 854.7 57.0 L 855.1 52.2 L 855.6 49.8 L 855.6 48.8 L 855.6 50.2 L 855.6 55.1 L 855.6 60.9 L 855.6 66.3 L 857.1 70.6 L 858.5 72.6"/>
+        <path class="ink" d="M 853.2 13.8 L 853.2 26.0 L 852.7 31.8 L 852.2 33.2 L 850.3 37.1 L 847.9 40.5 L 846.4 41.5 L 845.4 41.5 L 845.4 41.0 L 845.4 40.5"/>
+        <path class="ink" d="M 875.5 59.5 L 878.5 53.2 L 884.3 36.2 L 884.8 33.7 L 885.7 27.9 L 886.2 21.6 L 886.2 17.7 L 886.2 16.3 L 885.7 16.7 L 884.3 23.5 L 881.9 32.3 L 880.4 41.0 L 879.4 46.8 L 879.4 50.7 L 879.4 52.2 L 879.4 52.7 L 879.4 47.8 L 882.8 42.0 L 887.2 36.2 L 891.6 30.8 L 895.4 26.9 L 899.3 24.0 L 903.2 22.6 L 905.2 22.1 L 906.6 22.1 L 907.6 22.1 L 907.6 23.5 L 907.6 27.4 L 907.6 31.8 L 901.8 37.1 L 892.5 43.0 L 883.3 49.3 L 876.0 52.7 L 871.2 54.6 L 869.7 56.1 L 869.7 57.0 L 869.7 57.5 L 869.7 58.5 L 874.1 60.4 L 878.5 63.3 L 882.8 66.3 L 887.2 70.1 L 892.0 74.0 L 895.9 77.4 L 900.3 80.8 L 902.7 83.3 L 903.7 84.2 L 904.2 84.2 L 906.6 76.9 L 910.5 68.2 L 914.9 59.9 L 921.2 52.2 L 928.0 45.9 L 934.3 43.0 L 937.7 42.5 L 940.1 42.5 L 941.1 46.4 L 941.6 53.2 L 941.6 59.9 L 941.6 67.2 L 940.1 74.5 L 935.7 79.4 L 929.9 82.3 L 924.1 82.8 L 917.8 82.8 L 914.4 81.8 L 912.9 75.5 L 912.9 67.7 L 912.9 59.9 L 916.8 54.1 L 921.2 50.7 L 925.5 49.3 L 928.5 49.3 L 931.4 49.3 L 934.3 50.2 L 936.7 55.6 L 939.1 62.9 L 942.1 68.7 L 945.0 74.0 L 947.9 76.9 L 950.8 79.4 L 953.2 79.9 L 955.6 79.9 L 959.0 79.9 L 964.9 75.5"/>
+      </svg>
+      <hr class="rule">
+      <div class="capture-controls">
+        <button class="replay-btn" type="button" data-replay>Replay the strokes</button>
+        <span class="capture-note">12 strokes / 613 points / one line</span>
+      </div>
+    </div>
+    <div class="facts">
+      <div class="fact"><b>Ordered</b><span>Every point arrives in time order.</span></div>
+      <div class="fact"><b>Pen lifts</b><span>The spaces between letters are recorded too.</span></div>
+      <div class="fact"><b>One line</b><span>Short enough to write on a phone, long enough to be yours.</span></div>
+    </div>
+  </section>
+
+  <style>
+    .model-layout { margin: 34px 0 0 134px; display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 26px; align-items: stretch; }
+    .model-map { border: 1px solid var(--ink); background: var(--card); padding: 22px; display: grid; gap: 10px; align-content: center; }
+    .model-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .node {
+      appearance: none; border: 1px solid var(--line); background: transparent; color: var(--ink);
+      font: inherit; font-size: 13px; line-height: 1.2; padding: 10px 11px; cursor: pointer;
+      text-align: left; border-radius: 0; min-width: 0;
+    }
+    .node:hover, .node:focus-visible { border-color: var(--blue); color: var(--blue); }
+    .node.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+    .node small { display: block; margin-top: 4px; font-family: var(--mono); font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.65; }
+    .arrow { font-family: var(--mono); color: var(--muted); font-size: 13px; }
+    .model-detail { border: 1px solid var(--ink); background: var(--card); padding: 26px 24px; display: flex; flex-direction: column; justify-content: center; min-height: 260px; }
+    .model-detail .tag { font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--blue); }
+    .model-detail h3 { margin: 10px 0 8px; font-family: var(--display); font-weight: 400; font-size: 30px; line-height: 1; letter-spacing: -0.035em; }
+    .model-detail p { margin: 0; font-size: 15px; line-height: 1.55; color: var(--muted); }
+    .model-detail p strong { color: var(--ink); font-weight: 600; }
+    .model-note { margin: 18px 0 0 134px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.06em; color: var(--muted); }
+
+    .switch { display: inline-flex; border: 1px solid var(--ink); margin: 34px 0 0 134px; }
+    .switch button {
+      appearance: none; border: 0; background: transparent; color: var(--ink);
+      font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 12px 16px; cursor: pointer;
+    }
+    .switch button + button { border-left: 1px solid var(--ink); }
+    .switch button.active { background: var(--ink); color: var(--paper); }
+    .mode-panel { margin: 24px 0 0 134px; border-top: 1px solid var(--line); padding-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+    .mode-panel h3 { margin: 0; font-family: var(--display); font-weight: 400; font-size: 34px; line-height: 1; letter-spacing: -0.035em; }
+    .mode-panel p { margin: 10px 0 0; color: var(--muted); font-size: 15.5px; }
+    .mode-panel p strong { color: var(--ink); font-weight: 600; }
+    .mode-stat { border-left: 2px solid var(--blue); padding-left: 16px; align-self: start; }
+    .mode-stat b { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--blue); }
+    .mode-stat span { display: block; margin-top: 6px; font-size: 14px; color: var(--muted); }
+
+    .arm-layout { margin: 34px 0 0 134px; display: grid; grid-template-columns: 0.95fr 1.05fr; gap: 26px; align-items: stretch; }
+    .arm-photo { border: 1px solid var(--ink); overflow: hidden; min-height: 330px; background: var(--card); }
+    .arm-photo img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 42%; display: block; }
+    .arm-facts { border: 1px solid var(--ink); background: var(--card); padding: 24px; display: grid; gap: 14px; align-content: center; }
+    .arm-fact { display: grid; grid-template-columns: 34px 1fr; gap: 10px; align-items: start; }
+    .arm-fact .n { font-family: var(--mono); font-size: 10px; color: var(--blue); letter-spacing: 0.1em; padding-top: 3px; }
+    .arm-fact b { display: block; font-size: 14px; font-weight: 700; }
+    .arm-fact span { display: block; margin-top: 2px; font-size: 13.5px; line-height: 1.45; color: var(--muted); }
+
+    .thanks { margin-top: 72px; border-top: 1px solid var(--ink); padding-top: 42px; display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 36px; align-items: end; }
+    .thanks h2 { font-size: clamp(40px, 5.4vw, 72px); }
+    .thanks p { margin: 18px 0 0; max-width: 40ch; color: var(--muted); }
+    .signature-block { justify-self: end; text-align: right; }
+    .signature-block .made { font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+    .signature-block img { display: block; width: 190px; margin: 10px 0 8px auto; }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) .signature-block img { filter: invert(1) brightness(1.7); }
+    }
+    :root[data-theme="dark"] .signature-block img { filter: invert(1) brightness(1.7); }
+    .signature-block .name { font-family: var(--display); font-size: 28px; letter-spacing: -0.03em; }
+    .signature-block .note { margin-top: 6px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; color: var(--muted); }
+    footer.site-foot { margin-top: 56px; border-top: 1px solid var(--line); padding-top: 18px; display: flex; justify-content: space-between; gap: 18px; flex-wrap: wrap; font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+    footer.site-foot a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--line); }
+    footer.site-foot a:hover { color: var(--blue); border-color: var(--blue); }
+
+    @media (max-width: 860px) {
+      .model-layout, .arm-layout, .thanks { grid-template-columns: 1fr; margin-left: 0; }
+      .model-layout, .switch, .mode-panel, .arm-layout, .model-note { margin-left: 0; }
+      .signature-block { justify-self: start; text-align: left; }
+      .signature-block img { margin-left: 0; }
+      .mode-panel { grid-template-columns: 1fr; }
+      .thanks { align-items: start; }
+    }
+  </style>
+
+  <section class="chapter" id="model">
+    <div class="chapter-head">
+      <div class="chapter-num">02 / Model</div>
+      <h2>A small machine that predicts the next <em>pen movement.</em></h2>
+    </div>
+    <div class="chapter-body">
+      <p>The deployed model is a pretrained <strong>Graves LSTM with attention and a mixture-density head</strong>. It does not draw letters from a font. At every step it predicts where the pen goes next.</p>
+    </div>
+    <div class="model-layout">
+      <div class="model-map" role="tablist" aria-label="Model components">
+        <div class="model-row">
+          <button class="node active" type="button" role="tab" aria-selected="true" data-model="attention">Attention window<small>where to look</small></button>
+          <span class="arrow">-&gt;</span>
+          <button class="node" type="button" role="tab" aria-selected="false" data-model="decoder">LSTM decoder<small>next movement</small></button>
+          <span class="arrow">-&gt;</span>
+          <button class="node" type="button" role="tab" aria-selected="false" data-model="mdn">MDN head<small>sample a path</small></button>
+        </div>
+        <div class="model-row">
+          <button class="node" type="button" role="tab" aria-selected="false" data-model="text">Text encoder<small>what to write</small></button>
+          <span class="arrow">-&gt;</span>
+          <button class="node" type="button" role="tab" aria-selected="false" data-model="style">Style<small>whose hand</small></button>
+          <span class="arrow">-&gt;</span>
+          <span class="kicker">feeds the decoder</span>
+        </div>
+      </div>
+      <div class="model-detail" id="model-detail" role="tabpanel" aria-live="polite">
+        <div class="tag" id="model-tag">Attention window</div>
+        <h3 id="model-title">It learns where to look.</h3>
+        <p id="model-copy">A soft window slides over the requested text and focuses on the next character. The decoder never sees the whole sentence at once; it learns where to look, one character at a time.</p>
+      </div>
+    </div>
+    <p class="model-note">The model was pretrained on IAM-OnDB. The personal fine-tune uses 12 short prompts; exact replay bypasses the model and uses the captured strokes directly.</p>
+  </section>
+
+  <section class="chapter" id="ways">
+    <div class="chapter-head">
+      <div class="chapter-num">03 / Two ways</div>
+      <h2>Replay the line, or continue <em>the hand.</em></h2>
+    </div>
+    <div class="chapter-body">
+      <p>The card on the front is the exact replay path. The other path is the one that turns one line into a page.</p>
+    </div>
+    <div class="switch" role="tablist" aria-label="Writing mode">
+      <button type="button" class="active" role="tab" aria-selected="true" data-mode="exact">Exact replay</button>
+      <button type="button" role="tab" aria-selected="false" data-mode="model">Continue with the model</button>
+    </div>
+    <div class="mode-panel" data-panel="exact">
+      <div>
+        <h3>The line on the card is yours.</h3>
+        <p>The robot writes the visitor's <strong>captured strokes</strong>, in the same order and with the same pen lifts. No generation, no font, no guessing which word came from where.</p>
+      </div>
+      <div class="mode-stat"><b>What you see</b><span>Your own line, written again by the arm. The card is a physical copy of the motion you made.</span></div>
+    </div>
+    <div class="mode-panel" data-panel="model" hidden>
+      <div>
+        <h3>New words, same hand.</h3>
+        <p>The model reads the captured hand as a style signal and writes <strong>new text</strong> from it. This is the "one line in, a page out" path. It is generative: the shape can vary, and it is not a perfect clone.</p>
+      </div>
+      <div class="mode-stat"><b>What you see</b><span>A longer line or page in a hand close to the captured one. More words, more variation, and an honest few-shot result.</span></div>
+    </div>
+  </section>
+
+  <section class="chapter" id="arm">
+    <div class="chapter-head">
+      <div class="chapter-num">04 / Arm</div>
+      <h2>Real pen. Real paper. <em>Real ink.</em></h2>
+    </div>
+    <div class="chapter-body">
+      <p>The capture becomes a trajectory. The trajectory becomes a set of XY points with a pen-up or pen-down state. The arm is a <strong>Dobot Magician</strong>, calibrated to the paper and the pen.</p>
+    </div>
+    <div class="arm-layout">
+      <div class="arm-photo"><img src="assets/robot_pen.jpg" alt="A robot pen writing on white paper"></div>
+      <div class="arm-facts">
+        <div class="arm-fact"><span class="n">01</span><div><b>Path</b><span>Model or captured strokes become an ordered XY path.</span></div></div>
+        <div class="arm-fact"><span class="n">02</span><div><b>Pen state</b><span>Down for ink, up for travel. The lifts are part of the drawing.</span></div></div>
+        <div class="arm-fact"><span class="n">03</span><div><b>Paper</b><span>A measured writing area, a calibrated contact height, and a real card.</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="thanks" id="thanks">
+    <div>
+      <div class="eyebrow">Thank you</div>
+      <h2>Keep the line.<br><em>It's yours.</em></h2>
+      <p>You took home a small piece of the machine: your motion, written back in ink. If it made you smile, vote InkTellect for People's Choice.</p>
+    </div>
+    <div class="signature-block">
+      <div class="made">made by</div>
+      <img src="assets/signature_radhika.png" alt="Radhika's handwritten signature">
+      <div class="name">Radhika</div>
+      <div class="note">with a robot, a phone, and a few short lines</div>
+    </div>
+  </section>
+
+  <footer class="site-foot">
+    <span>InkTellect / a handwriting robot / 2026</span>
+    <span><a href="#top">Back to the top &uarr;</a></span>
+  </footer>
+</main>
+
+<script>
+  (() => {
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const inkPaths = Array.from(document.querySelectorAll(".ink"));
+
+    function replay() {
+      if (reduceMotion) return;
+      let delay = 0;
+      for (const path of inkPaths) {
+        const length = path.getTotalLength();
+        path.style.strokeDasharray = `${length}`;
+        path.style.strokeDashoffset = `${length}`;
+        const duration = Math.max(90, Math.min(420, length * 1.7));
+        path.animate(
+          [{ strokeDashoffset: length }, { strokeDashoffset: 0 }],
+          { duration, delay, easing: "linear", fill: "forwards" }
+        );
+        delay += Math.max(55, duration * 0.42);
+      }
+    }
+
+    for (const button of document.querySelectorAll("[data-replay]")) {
+      button.addEventListener("click", replay);
+    }
+
+    const modelCopy = {
+      text: {
+        tag: "Text encoder",
+        title: "It reads what to write.",
+        copy: "A bidirectional LSTM turns each character of the requested text into a feature. It knows the words; it does not yet know the hand."
+      },
+      attention: {
+        tag: "Attention window",
+        title: "It learns where to look.",
+        copy: "A soft window slides over the requested text and focuses on the next character. The decoder never sees the whole sentence at once; it learns where to look, one character at a time."
+      },
+      style: {
+        tag: "Style",
+        title: "It carries the hand.",
+        copy: "A captured line is a style signal. In the generative path it conditions the model; in exact replay the captured strokes are used directly, so the line is literally the visitor's."
+      },
+      decoder: {
+        tag: "LSTM decoder",
+        title: "It writes one movement at a time.",
+        copy: "At each step the decoder predicts the next pen movement from the text, the attention window and the previous stroke: a small dx, a small dy, and a pen-lift decision."
+      },
+      mdn: {
+        tag: "MDN head",
+        title: "It guesses a distribution, not a line.",
+        copy: "The head predicts a mixture of 20 Gaussians. Sampling one gives a natural, slightly different movement every time  -  which is why two generated lines are never identical."
+      }
+    };
+
+    const detailTag = document.getElementById("model-tag");
+    const detailTitle = document.getElementById("model-title");
+    const detailCopy = document.getElementById("model-copy");
+    for (const button of document.querySelectorAll("[data-model]")) {
+      button.addEventListener("click", () => {
+        for (const other of document.querySelectorAll("[data-model]")) {
+          other.classList.toggle("active", other === button);
+          other.setAttribute("aria-selected", other === button ? "true" : "false");
+        }
+        const entry = modelCopy[button.dataset.model];
+        if (!entry) return;
+        detailTag.textContent = entry.tag;
+        detailTitle.textContent = entry.title;
+        detailCopy.textContent = entry.copy;
+      });
+    }
+
+    for (const button of document.querySelectorAll("[data-mode]")) {
+      button.addEventListener("click", () => {
+        for (const other of document.querySelectorAll("[data-mode]")) {
+          other.classList.toggle("active", other === button);
+          other.setAttribute("aria-selected", other === button ? "true" : "false");
+        }
+        for (const panel of document.querySelectorAll("[data-panel]")) {
+          const show = panel.dataset.panel === button.dataset.mode;
+          panel.hidden = !show;
+          if (show) panel.classList.add("in");
+        }
+      });
+    }
+  })();
+</script>
+
+<script>
+  (() => {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const targets = Array.from(document.querySelectorAll(
+      ".chapter-head, .chapter-body, .capture-stage, .facts, .model-layout, .model-note, .switch, .mode-panel, .arm-layout, .thanks"
+    ));
+
+    if (!reduce) {
+      targets.forEach((el, index) => {
+        el.classList.add("reveal");
+        el.style.setProperty("--d", `${(index % 4) * 55}ms`);
+      });
+    }
+
+    if ("IntersectionObserver" in window && !reduce) {
+      const revealObserver = new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("in");
+            revealObserver.unobserve(entry.target);
+          }
+        }
+      }, { threshold: 0.12, rootMargin: "0px 0px -8% 0px" });
+      targets.forEach((el) => revealObserver.observe(el));
+
+      const glowObserver = new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("in");
+            glowObserver.unobserve(entry.target);
+          }
+        }
+      }, { threshold: 0.2 });
+      document.querySelectorAll(".chapter").forEach((el) => glowObserver.observe(el));
+
+      requestAnimationFrame(() => {
+        for (const el of targets) {
+          if (el.getBoundingClientRect().top < window.innerHeight * 0.94) {
+            el.classList.add("in");
+          }
+        }
+      });
+    } else {
+      targets.forEach((el) => el.classList.add("in"));
+      document.querySelectorAll(".chapter").forEach((el) => el.classList.add("in"));
+    }
+
+    const bar = document.querySelector(".progress");
+    let ticking = false;
+    const paint = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      bar.style.width = `${max > 0 ? Math.min(100, (window.scrollY / max) * 100) : 0}%`;
+      ticking = false;
+    };
+    const onScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(paint);
+      }
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    paint();
+  })();
+</script>
+
+
+</body>
+</html>
