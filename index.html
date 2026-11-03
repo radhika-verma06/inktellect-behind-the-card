@@ -128,6 +128,10 @@
   .card-bottom .mark { font-family: var(--body); font-size: 13px; font-weight: 700; letter-spacing: -0.04em; color: var(--ink); text-transform: none; }
   .card-bottom .mark span { color: var(--blue); }
   .bubble-wrap { position: relative; width: 100%; margin-top: 22%; }
+  .card-hands {
+    width: 70%; height: auto; aspect-ratio: 1.75; object-fit: cover;
+    display: block; margin: 8% auto 0; border: 1px solid var(--ink);
+  }
   .bubble-line { display: block; width: 100%; height: auto; }
   .handwriting-svg {
     position: absolute; left: 7%; top: 26%; width: 86%; height: auto; overflow: visible;
@@ -247,25 +251,72 @@
     .chapter::before, .thanks::before { transition: none; }
   }
 </style>
+<style>
+  .topbar .wayfinding { display: inline-flex; gap: 16px; align-items: center; font-family: var(--mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+  .topbar .wayfinding a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--line); padding-bottom: 3px; }
+  .topbar .wayfinding a:hover, .topbar .wayfinding a:focus-visible { color: var(--blue); border-color: var(--blue); }
+  .story { padding: 62px 0 68px; border-top: 1px solid var(--line); }
+  .story-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(260px, .9fr); gap: 48px; align-items: center; }
+  .story-copy { max-width: 690px; }
+  .story-copy h2 { max-width: 14ch; }
+  .story-copy p { max-width: 58ch; color: var(--muted); margin: 20px 0 0; }
+  .story-copy p strong { color: var(--ink); font-weight: 600; }
+  .story-note { margin-top: 25px; padding: 18px 0 0 18px; border-top: 1px solid var(--line); border-left: 2px solid var(--red); font-family: var(--display); font-size: clamp(21px, 2.5vw, 29px); line-height: 1.25; max-width: 27ch; }
+  .letter-art { position: relative; min-height: 330px; display: grid; place-items: center; }
+  .letter-art::before { content: ""; position: absolute; width: 80%; aspect-ratio: 1; border: 1px solid var(--line); border-radius: 50%; }
+  .letter-paper { position: relative; width: min(100%, 340px); min-height: 245px; background: var(--card); border: 1px solid var(--ink); padding: 24px 26px; transform: rotate(-2deg); box-shadow: 0 18px 44px rgba(0,0,0,.1); }
+  .letter-paper .to { font-family: var(--mono); font-size: 9px; letter-spacing: .13em; text-transform: uppercase; color: var(--muted); }
+  .letter-paper .letter-line { margin-top: 30px; color: var(--ink); font-family: var(--display); font-size: clamp(25px, 3vw, 35px); line-height: 1.12; }
+  .letter-paper .letter-line em { color: var(--blue); }
+  .letter-paper .postmark { position: absolute; right: 18px; top: 18px; width: 55px; height: 55px; border: 1px solid var(--red); border-radius: 50%; display: grid; place-items: center; color: var(--red); font-family: var(--mono); font-size: 8px; line-height: 1.25; text-align: center; transform: rotate(11deg); }
+  .letter-paper .from { margin-top: 28px; font-family: var(--mono); font-size: 9px; color: var(--muted); letter-spacing: .1em; text-transform: uppercase; }
+  .story-truth { margin-top: 26px; padding: 15px 18px; border: 1px solid var(--line); background: var(--card); font-size: 13px; line-height: 1.55; color: var(--muted); }
+  .story-truth strong { color: var(--ink); }
+  .pipeline { margin: 34px 0 0 134px; padding: 24px; border: 1px solid var(--ink); background: var(--card); }
+  .pipeline-label { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 18px; font-family: var(--mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .pipeline-label b { color: var(--blue); font-weight: 500; }
+  .pipeline svg { display: block; width: 100%; height: auto; margin-top: 14px; }
+  .pipeline-note { margin: 15px 0 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
+  .pipeline-note strong { color: var(--ink); }
+  .model-visual { width: 100%; height: auto; display: block; margin-top: 22px; border-top: 1px solid var(--line); padding-top: 18px; }
+  .model-visual text { font-family: var(--body); }
+  @media (max-width: 860px) {
+    .story-grid { grid-template-columns: 1fr; gap: 18px; }
+    .letter-art { min-height: 290px; }
+    .pipeline { margin-left: 0; padding: 18px 14px; }
+    .pipeline-viewport { overflow-x: auto; }
+    .pipeline svg { min-width: 680px; }
+  }
+  @media (max-width: 560px) {
+    .topbar { align-items: flex-start; }
+    .topbar .wayfinding { gap: 10px; flex-direction: column; align-items: flex-end; font-size: 9px; }
+    .story { padding: 42px 0; }
+    .letter-art { min-height: 250px; }
+    .letter-paper { min-height: 210px; padding: 19px 20px; }
+  }
+</style>
 <div class="progress" aria-hidden="true"></div>
 
 <main class="site" id="top">
   <header class="topbar">
     <div class="wordmark">Ink<span>tellect</span></div>
-    <div class="meta">Behind the card<br>a handwriting robot</div>
+    <nav class="wayfinding" aria-label="Choose where to begin">
+      <a href="#story">The story</a>
+      <a href="#technical">Skip to the technical</a>
+    </nav>
   </header>
 
   <section class="hero">
     <div>
-      <div class="eyebrow">You scanned the card</div>
-      <h1>This card was written by a <em>robot</em>.</h1>
-      <p class="lead">You wrote one line. It read your strokes, then wrote them back. This is the whole machine behind the card  -  <strong>capture, model, arm, paper.</strong></p>
+      <div class="eyebrow">A note can travel farther than I can</div>
+      <h1>Could a letter still feel like <em>me?</em></h1>
+      <p class="lead">My mother lives overseas. A message can reach her in seconds, but a typed font cannot carry the small, familiar traces of <strong>how I write.</strong> InkTellect asks whether a robot can help those traces travel.</p>
       <div class="hero-meta">
-        <span><i class="dot"></i>Real pen</span>
-        <span><i class="dot"></i>Real paper</span>
-        <span><i class="dot"></i>Your strokes</span>
+        <span><i class="dot"></i>Made to help people express care</span>
+        <span><i class="dot"></i>Real pen, real paper</span>
       </div>
-      <a class="jump" href="#capture">Start with the line <span aria-hidden="true">&darr;</span></a>
+      <a class="jump" href="#story">Read the story <span aria-hidden="true">&darr;</span></a>
+      <a class="jump" href="#technical">Skip to how it works <span aria-hidden="true">&darr;</span></a>
     </div>
 
     <div class="hero-art" aria-hidden="true">
@@ -291,6 +342,7 @@
         <path class="ink" d="M 875.5 59.5 L 878.5 53.2 L 884.3 36.2 L 884.8 33.7 L 885.7 27.9 L 886.2 21.6 L 886.2 17.7 L 886.2 16.3 L 885.7 16.7 L 884.3 23.5 L 881.9 32.3 L 880.4 41.0 L 879.4 46.8 L 879.4 50.7 L 879.4 52.2 L 879.4 52.7 L 879.4 47.8 L 882.8 42.0 L 887.2 36.2 L 891.6 30.8 L 895.4 26.9 L 899.3 24.0 L 903.2 22.6 L 905.2 22.1 L 906.6 22.1 L 907.6 22.1 L 907.6 23.5 L 907.6 27.4 L 907.6 31.8 L 901.8 37.1 L 892.5 43.0 L 883.3 49.3 L 876.0 52.7 L 871.2 54.6 L 869.7 56.1 L 869.7 57.0 L 869.7 57.5 L 869.7 58.5 L 874.1 60.4 L 878.5 63.3 L 882.8 66.3 L 887.2 70.1 L 892.0 74.0 L 895.9 77.4 L 900.3 80.8 L 902.7 83.3 L 903.7 84.2 L 904.2 84.2 L 906.6 76.9 L 910.5 68.2 L 914.9 59.9 L 921.2 52.2 L 928.0 45.9 L 934.3 43.0 L 937.7 42.5 L 940.1 42.5 L 941.1 46.4 L 941.6 53.2 L 941.6 59.9 L 941.6 67.2 L 940.1 74.5 L 935.7 79.4 L 929.9 82.3 L 924.1 82.8 L 917.8 82.8 L 914.4 81.8 L 912.9 75.5 L 912.9 67.7 L 912.9 59.9 L 916.8 54.1 L 921.2 50.7 L 925.5 49.3 L 928.5 49.3 L 931.4 49.3 L 934.3 50.2 L 936.7 55.6 L 939.1 62.9 L 942.1 68.7 L 945.0 74.0 L 947.9 76.9 L 950.8 79.4 L 953.2 79.9 L 955.6 79.9 L 959.0 79.9 L 964.9 75.5"/>
           </svg>
         </div>
+        <img class="card-hands" src="assets/hands_cc0.jpg" alt="">
         <div class="card-bottom">
           <span class="mark">Ink<span>tellect</span></span>
           <span>written by a robot<br>in the hand it captured</span>
@@ -298,6 +350,28 @@
       </div>
       <div class="photo-chip">
         <img src="assets/robot_pen.jpg" alt="">
+      </div>
+    </div>
+  </section>
+
+  <section class="story" id="story" aria-labelledby="story-title">
+    <div class="story-grid">
+      <div class="story-copy">
+        <div class="eyebrow">The reason behind the card</div>
+        <h2 id="story-title">Technology should help our care <em>reach further.</em></h2>
+        <p>When someone you love is far away, the words matter. So does the way they arrive. A font is useful, and a text message is immediate, but neither carries the little turns and pauses that make a handwritten note feel familiar.</p>
+        <p><strong>I am not trying to replace people writing to each other.</strong> I want to make it easier to send something personal when distance, time, or the effort of writing gets in the way. A robot can hold the pen; the message, the intention, and the handwriting sample still come from a person.</p>
+        <p>That is the idea behind InkTellect: give the system a small record of a person's pen movement, then explore whether it can help put new words on paper in a hand that feels closer to theirs.</p>
+        <div class="story-note">If a machine helps a letter feel more like it came from you, it is carrying your voice - not taking its place.</div>
+        <div class="story-truth"><strong>Where the prototype is today:</strong> it can replay captured pen strokes exactly, or generate new text with a personal fine-tune. That fine-tune used 12 short prompts. A photo alone does not reveal stroke order or pen lifts, and this is still an experiment - not a perfect handwriting copy.</div>
+      </div>
+      <div class="letter-art" role="img" aria-label="An imagined handwritten note from Radhika to her mother">
+        <div class="letter-paper" aria-hidden="true">
+          <div class="to">A note, across the distance</div>
+          <div class="postmark">SENT<br>WITH<br>CARE</div>
+          <div class="letter-line">Dear Mum,<br><em>I wanted this to feel like it came from me.</em></div>
+          <div class="from">From Radhika / in ink</div>
+        </div>
       </div>
     </div>
   </section>
@@ -410,13 +484,53 @@
     }
   </style>
 
-  <section class="chapter" id="model">
+  <section class="chapter" id="technical">
     <div class="chapter-head">
-      <div class="chapter-num">02 / Model</div>
+      <div class="chapter-num">02 / Technical</div>
       <h2>A small machine that predicts the next <em>pen movement.</em></h2>
     </div>
     <div class="chapter-body">
-      <p>The deployed model is a pretrained <strong>Graves LSTM with attention and a mixture-density head</strong>. It does not draw letters from a font. At every step it predicts where the pen goes next.</p>
+      <p>The generation path uses a pretrained <strong>Graves LSTM with an attention window and a mixture-density output</strong>. It does not paste letter shapes from a font: it predicts a stream of small pen movements. Exact replay is a separate route that sends captured strokes straight to the path planner.</p>
+    </div>
+    <div class="pipeline" aria-label="InkTellect technical pipeline">
+      <div class="pipeline-label"><span>From a person's sample to a physical line</span><b>two ways in / one careful robot path</b></div>
+      <div class="pipeline-viewport">
+        <svg viewBox="0 0 980 242" role="img" aria-label="Pipeline: text and captured handwriting enter either exact replay or an LSTM attention MDN generator; both produce pen movements, which are planned and written by the Dobot">
+          <defs>
+            <marker id="pipelineArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#1f35c7"/></marker>
+            <marker id="pipelineMutedArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#6b6a64"/></marker>
+          </defs>
+          <g fill="none" stroke="#1f35c7" stroke-width="1.6" marker-end="url(#pipelineArrow)">
+            <path d="M190 67 H246"/><path d="M190 176 H246"/><path d="M443 67 H500"/><path d="M443 176 H500"/><path d="M658 67 C700 67 690 122 732 122"/><path d="M658 176 C700 176 690 122 732 122"/><path d="M831 122 H878"/>
+          </g>
+          <path d="M190 176 C220 176 215 67 246 67" fill="none" stroke="#6b6a64" stroke-width="1.2" stroke-dasharray="4 5" marker-end="url(#pipelineMutedArrow)"/>
+          <g font-family="Manrope, sans-serif" text-anchor="middle">
+            <rect x="12" y="35" width="178" height="64" fill="#fff" stroke="#0d0d0e"/>
+            <text x="101" y="60" font-size="13" fill="#0d0d0e" font-weight="700">Text to write</text>
+            <text x="101" y="80" font-size="11" fill="#6b6a64">the message is yours</text>
+            <rect x="12" y="144" width="178" height="64" fill="#fff" stroke="#0d0d0e"/>
+            <text x="101" y="169" font-size="13" fill="#0d0d0e" font-weight="700">Handwriting sample</text>
+            <text x="101" y="189" font-size="11" fill="#6b6a64">ordered x, y, pen state</text>
+            <rect x="246" y="35" width="197" height="64" fill="#1f35c7" stroke="#1f35c7"/>
+            <text x="344" y="60" font-size="13" fill="#fff" font-weight="700">LSTM / Attention / MDN</text>
+            <text x="344" y="80" font-size="11" fill="#fff">generates new text strokes</text>
+            <rect x="246" y="144" width="197" height="64" fill="#fff" stroke="#0d0d0e"/>
+            <text x="344" y="169" font-size="13" fill="#0d0d0e" font-weight="700">Exact replay</text>
+            <text x="344" y="189" font-size="11" fill="#6b6a64">reuses the captured motion</text>
+            <rect x="500" y="89" width="158" height="66" fill="#fff" stroke="#0d0d0e"/>
+            <text x="579" y="115" font-size="13" fill="#0d0d0e" font-weight="700">Pen trajectory</text>
+            <text x="579" y="136" font-size="11" fill="#6b6a64">dx / dy / lift / lower</text>
+            <rect x="732" y="89" width="99" height="66" fill="#fff" stroke="#0d0d0e"/>
+            <text x="781" y="115" font-size="13" fill="#0d0d0e" font-weight="700">Plan</text>
+            <text x="781" y="136" font-size="11" fill="#6b6a64">paper + limits</text>
+            <rect x="878" y="89" width="90" height="66" fill="#e23d28" stroke="#e23d28"/>
+            <text x="923" y="115" font-size="13" fill="#fff" font-weight="700">Dobot</text>
+            <text x="923" y="136" font-size="11" fill="#fff">pen on paper</text>
+          </g>
+          <text x="219" y="125" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#6b6a64" transform="rotate(-90 219 125)">PERSONAL FINE-TUNE</text>
+        </svg>
+      </div>
+      <p class="pipeline-note"><strong>Why capture motion instead of only a photo?</strong> A still image shows the final ink, but not the order of strokes or where the pen lifted. The current capture records that movement. The exact-replay path bypasses generation; the personal fine-tune path uses captured examples to adapt a pretrained model.</p>
     </div>
     <div class="model-layout">
       <div class="model-map" role="tablist" aria-label="Model components">
@@ -428,7 +542,7 @@
           <button class="node" type="button" role="tab" aria-selected="false" data-model="mdn">MDN head<small>sample a path</small></button>
         </div>
         <div class="model-row">
-          <button class="node" type="button" role="tab" aria-selected="false" data-model="text">Text encoder<small>what to write</small></button>
+          <button class="node" type="button" role="tab" aria-selected="false" data-model="text">Text sequence<small>what to write</small></button>
           <span class="arrow">-&gt;</span>
           <button class="node" type="button" role="tab" aria-selected="false" data-model="style">Style<small>whose hand</small></button>
           <span class="arrow">-&gt;</span>
@@ -439,6 +553,10 @@
         <div class="tag" id="model-tag">Attention window</div>
         <h3 id="model-title">It learns where to look.</h3>
         <p id="model-copy">A soft window slides over the requested text and focuses on the next character. The decoder never sees the whole sentence at once; it learns where to look, one character at a time.</p>
+        <svg class="model-visual" id="model-visual" viewBox="0 0 520 112" role="img" aria-label="Attention highlights the next character in the word moon">
+          <text x="62" y="67" font-size="42" fill="#0d0d0e">m</text><text x="166" y="67" font-size="42" fill="#0d0d0e">o</text><text x="270" y="67" font-size="42" fill="#0d0d0e">o</text><text x="374" y="67" font-size="42" fill="#0d0d0e">n</text>
+          <rect x="145" y="17" width="71" height="69" rx="34" fill="#1f35c7" fill-opacity=".12" stroke="#1f35c7"/><text x="180" y="103" text-anchor="middle" font-size="10" fill="#1f35c7">FOCUS</text>
+        </svg>
       </div>
     </div>
     <p class="model-note">The model was pretrained on IAM-OnDB. The personal fine-tune uses 12 short prompts; exact replay bypasses the model and uses the captured strokes directly.</p>
@@ -450,7 +568,7 @@
       <h2>Replay the line, or continue <em>the hand.</em></h2>
     </div>
     <div class="chapter-body">
-      <p>The card on the front is the exact replay path. The other path is the one that turns one line into a page.</p>
+      <p>The card on the front shows exact replay. The generative path is different: a personal fine-tune uses a small captured dataset to help the model write new text. It can vary, and it is not a perfect clone.</p>
     </div>
     <div class="switch" role="tablist" aria-label="Writing mode">
       <button type="button" class="active" role="tab" aria-selected="true" data-mode="exact">Exact replay</button>
@@ -466,9 +584,9 @@
     <div class="mode-panel" data-panel="model" hidden>
       <div>
         <h3>New words, same hand.</h3>
-        <p>The model reads the captured hand as a style signal and writes <strong>new text</strong> from it. This is the "one line in, a page out" path. It is generative: the shape can vary, and it is not a perfect clone.</p>
+        <p>A personal fine-tune adapts a pretrained model using <strong>12 short handwriting prompts</strong>, then generates new text. It can resemble the sample, but the result varies and is not a perfect clone.</p>
       </div>
-      <div class="mode-stat"><b>What you see</b><span>A longer line or page in a hand close to the captured one. More words, more variation, and an honest few-shot result.</span></div>
+        <div class="mode-stat"><b>What you see</b><span>New text generated from a personally adapted model, with variation. This prototype needs several captured prompts; a single photo is not enough.</span></div>
     </div>
   </section>
 
@@ -537,35 +655,59 @@
 
     const modelCopy = {
       text: {
-        tag: "Text encoder",
-        title: "It reads what to write.",
-        copy: "A bidirectional LSTM turns each character of the requested text into a feature. It knows the words; it does not yet know the hand."
+        tag: "Text sequence",
+        title: "It reads the requested text.",
+        copy: "The model receives the characters in order. Attention provides a soft focus over that sequence, so the writing process can stay aligned as the line unfolds."
       },
       attention: {
         tag: "Attention window",
         title: "It learns where to look.",
-        copy: "A soft window slides over the requested text and focuses on the next character. The decoder never sees the whole sentence at once; it learns where to look, one character at a time."
+        copy: "A soft window moves across the text and weights the characters that matter for the next movement. It helps the model keep its place without cutting the sentence into rigid letter boxes."
       },
       style: {
         tag: "Style",
         title: "It carries the hand.",
-        copy: "A captured line is a style signal. In the generative path it conditions the model; in exact replay the captured strokes are used directly, so the line is literally the visitor's."
+        copy: "A handwriting sample can support personal adaptation. In exact replay, the captured strokes are used directly; in the personal fine-tune path, 12 short prompts adapted the pretrained model."
       },
       decoder: {
         tag: "LSTM decoder",
         title: "It writes one movement at a time.",
-        copy: "At each step the decoder predicts the next pen movement from the text, the attention window and the previous stroke: a small dx, a small dy, and a pen-lift decision."
+        copy: "At each step, the recurrent model uses its state and the attended text to predict a small change in x, a small change in y, and whether the pen should lift."
       },
       mdn: {
         tag: "MDN head",
         title: "It guesses a distribution, not a line.",
-        copy: "The head predicts a mixture of 20 Gaussians. Sampling one gives a natural, slightly different movement every time  -  which is why two generated lines are never identical."
+        copy: "The mixture-density head represents 20 plausible next-movement components. Sampling from that distribution can create natural variation; it does not guarantee a perfect or identical copy."
+      }
+    };
+
+    const modelVisuals = {
+      text: {
+        label: "The text sequence moon is represented character by character",
+        svg: `<text x="54" y="60" font-size="32" fill="#0d0d0e">m</text><text x="124" y="60" font-size="32" fill="#0d0d0e">o</text><text x="194" y="60" font-size="32" fill="#0d0d0e">o</text><text x="264" y="60" font-size="32" fill="#0d0d0e">n</text><path d="M48 79 H302" stroke="#1f35c7" stroke-width="2"/><text x="350" y="49" font-size="11" fill="#6b6a64">characters</text><path d="M350 62 H490" stroke="#1f35c7" stroke-width="1"/><path d="M350 72 H462" stroke="#1f35c7" stroke-width="1"/><path d="M350 82 H478" stroke="#1f35c7" stroke-width="1"/>`
+      },
+      attention: {
+        label: "Attention highlights the next character in the word moon",
+        svg: `<text x="62" y="67" font-size="42" fill="#0d0d0e">m</text><text x="166" y="67" font-size="42" fill="#0d0d0e">o</text><text x="270" y="67" font-size="42" fill="#0d0d0e">o</text><text x="374" y="67" font-size="42" fill="#0d0d0e">n</text><rect x="145" y="17" width="71" height="69" rx="34" fill="#1f35c7" fill-opacity=".12" stroke="#1f35c7"/><text x="180" y="103" text-anchor="middle" font-size="10" fill="#1f35c7">FOCUS</text>`
+      },
+      decoder: {
+        label: "LSTM carries state from the previous movement to the next movement",
+        svg: `<rect x="14" y="29" width="112" height="54" fill="#fff" stroke="#6b6a64"/><text x="70" y="52" text-anchor="middle" font-size="11" fill="#6b6a64">previous</text><text x="70" y="68" text-anchor="middle" font-size="11" fill="#6b6a64">movement</text><path d="M126 56 H192" stroke="#1f35c7" stroke-width="2"/><rect x="192" y="20" width="144" height="72" fill="#1f35c7"/><text x="264" y="51" text-anchor="middle" font-size="16" fill="#fff">LSTM</text><text x="264" y="71" text-anchor="middle" font-size="10" fill="#fff">memory + context</text><path d="M336 56 H402" stroke="#1f35c7" stroke-width="2"/><rect x="402" y="29" width="104" height="54" fill="#fff" stroke="#6b6a64"/><text x="454" y="52" text-anchor="middle" font-size="11" fill="#6b6a64">next</text><text x="454" y="68" text-anchor="middle" font-size="11" fill="#6b6a64">movement</text><path d="M264 20 C264 0 342 0 342 20" fill="none" stroke="#e23d28" stroke-width="1.5" stroke-dasharray="4 4"/>`
+      },
+      mdn: {
+        label: "Mixture density output represents plausible next pen movements and samples one",
+        svg: `<path d="M20 88 H500" stroke="#6b6a64" stroke-width="1"/><path d="M42 88 C82 88 88 32 128 32 C168 32 174 88 214 88" fill="none" stroke="#6b6a64" stroke-width="2" opacity=".5"/><path d="M158 88 C198 88 204 18 244 18 C284 18 290 88 330 88" fill="none" stroke="#e23d28" stroke-width="2.5"/><path d="M290 88 C330 88 336 40 376 40 C416 40 422 88 462 88" fill="none" stroke="#6b6a64" stroke-width="2" opacity=".5"/><circle cx="244" cy="18" r="5" fill="#e23d28"/><text x="244" y="110" text-anchor="middle" font-size="10" fill="#e23d28">sample one plausible move</text>`
+      },
+      style: {
+        label: "A captured handwriting sample provides examples for personal fine-tuning",
+        svg: `<path d="M18 66 C38 28 52 96 76 56 S112 42 126 66" fill="none" stroke="#0d0d0e" stroke-width="3" stroke-linecap="round"/><text x="72" y="103" text-anchor="middle" font-size="9" fill="#6b6a64">captured strokes</text><path d="M142 60 H198" stroke="#1f35c7" stroke-width="2"/><rect x="198" y="28" width="136" height="64" fill="#1f35c7"/><text x="266" y="55" text-anchor="middle" font-size="13" fill="#fff">fine-tune</text><text x="266" y="73" text-anchor="middle" font-size="9" fill="#fff">12 short prompts</text><path d="M334 60 H388" stroke="#1f35c7" stroke-width="2"/><path d="M402 66 C422 28 436 96 460 56 S496 42 510 66" fill="none" stroke="#e23d28" stroke-width="3" stroke-linecap="round"/><text x="456" y="103" text-anchor="middle" font-size="9" fill="#6b6a64">new text / variable</text>`
       }
     };
 
     const detailTag = document.getElementById("model-tag");
     const detailTitle = document.getElementById("model-title");
     const detailCopy = document.getElementById("model-copy");
+    const detailVisual = document.getElementById("model-visual");
     for (const button of document.querySelectorAll("[data-model]")) {
       button.addEventListener("click", () => {
         for (const other of document.querySelectorAll("[data-model]")) {
@@ -577,6 +719,11 @@
         detailTag.textContent = entry.tag;
         detailTitle.textContent = entry.title;
         detailCopy.textContent = entry.copy;
+        const visual = modelVisuals[button.dataset.model];
+        if (visual) {
+          detailVisual.innerHTML = visual.svg;
+          detailVisual.setAttribute("aria-label", visual.label);
+        }
       });
     }
 
@@ -600,7 +747,7 @@
   (() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const targets = Array.from(document.querySelectorAll(
-      ".chapter-head, .chapter-body, .capture-stage, .facts, .model-layout, .model-note, .switch, .mode-panel, .arm-layout, .thanks"
+      ".story-grid, .chapter-head, .chapter-body, .capture-stage, .facts, .pipeline, .model-layout, .model-note, .switch, .mode-panel, .arm-layout, .thanks"
     ));
 
     if (!reduce) {
